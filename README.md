@@ -1,4 +1,4 @@
-# micasaestuya-backend
+# micasaestuya-api
 
 REST API for the property rental and sale platform **Mi Casa Es Tuya**. Built with Node.js 18, Express, MongoDB, and Redis.
 
@@ -51,12 +51,12 @@ The easiest way to meet the last two is to start the full stack with Docker Comp
 
 ### Option 2 — Docker Compose (recommended)
 
-> The three repos (`micasaestuya-backend`, `micasaestuya-frontend`, `micasaestuya-infra`) should be cloned as siblings in the same parent directory.
+> The three repos (`micasaestuya-api`, `micasaestuya-web`, `micasaestuya-infra`) should be cloned as siblings in the same parent directory.
 
 1. From the parent directory, start all services:
 
    ```bash
-   docker compose -f micasaestuya-infra/dev/docker/docker-compose.yml up --build
+   docker compose -f micasaestuya-infra/docker-compose.yml up --build
    ```
 
 2. The API will be available at `http://localhost:3001`.
@@ -67,7 +67,7 @@ See the [micasaestuya-infra README](../micasaestuya-infra/README.md) for the ful
 
 > This requires the three repos to be cloned as siblings and the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for VS Code.
 
-1. Open the `micasaestuya-backend/` folder in VS Code.
+1. Open the `micasaestuya-api/` folder in VS Code.
 2. When the prompt appears, click **Reopen in Container** (or run `Dev Containers: Reopen in Container` from the command palette).
 3. VS Code will start the full Docker Compose stack and connect to the `express` container.
 4. The terminal inside VS Code is a shell inside the container. The server starts automatically with `npm run dev`.

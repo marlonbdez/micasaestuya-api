@@ -1,6 +1,6 @@
 {
   "name": "micasaestuya — api",
-  "dockerComposeFile": "../../infra/docker-compose.yml",
+  "dockerComposeFile": "../../micasaestuya-infra/docker-compose.yml",
   "service": "express",
   "workspaceFolder": "/usr/src/app",
   "shutdownAction": "none",
