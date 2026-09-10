@@ -1,0 +1,46 @@
+{
+  "name": "micasaestuya — api",
+  "dockerComposeFile": "../../infra/docker-compose.yml",
+  "service": "express",
+  "workspaceFolder": "/usr/src/app",
+  "shutdownAction": "none",
+  "containerEnv": {
+    "SHELL": "/bin/sh"
+  },
+  "remoteUser": "node",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // JavaScript / Node.js
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+
+        // REST API testing (usa los archivos en requests/)
+        "humao.rest-client",
+
+        // MongoDB
+        "mongodb.mongodb-vscode",
+
+        // Git
+        "eamodio.gitlens",
+
+        // Docker
+        "ms-azuretools.vscode-docker",
+
+        // General DX
+        "editorconfig.editorconfig",
+        "streetsidesoftware.code-spell-checker",
+
+        // Resource monitoring (CPU / RAM en status bar)
+        "mutantdino.resourcemonitor"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.validate": ["javascript"],
+        "terminal.integrated.defaultProfile.linux": "sh"
+      }
+    }
+  }
+}
