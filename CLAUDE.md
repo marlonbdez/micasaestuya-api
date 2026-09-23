@@ -11,8 +11,8 @@ Backend de la plataforma de intercambio de alojamiento por colaboración. Expres
 
 | Documento                                | Cuándo abrirlo                                |
 | ------------------------------------------ | ------------------------------------------------ |
-| `../micasaestuya-docs/status.md`         | Estado del proyecto, siguiente paso y deuda    |
-| `../micasaestuya-docs/product-vision.md` | Qué es el proyecto y por qué                   |
+| `../micasaestuya-docs/product-vision.md` | **Siempre al empezar.** Qué es el proyecto; manda sobre todo lo demás |
+| `../micasaestuya-docs/status.md`         | Justo después: dónde estamos, siguiente paso y deuda |
 | `docs/gotchas.md`                        | Trampas del toolchain y del modelo de regiones |
 
 > **Vocabulario compartido con `web`** (`region`, `address`, `locale`) — la
@@ -39,7 +39,7 @@ utils/         →  config, logger, middleware, redisClient
 ## Modelos existentes
 | Modelo   | Schema         | Notas                              |
 |----------|----------------|------------------------------------|
-| User     | schemas/user   | JWT auth, bcrypt, roles pendientes |
+| User     | schemas/user   | JWT auth, bcrypt, campo `role` sin usar todavía |
 | Region   | Redis + JSON   | ver abajo |
 
 ## Las regiones: dos índices, una fuente
@@ -85,6 +85,10 @@ llamarse `backend` a `api`; si ves una ruta de registro distinta a esa, está
 desactualizada.
 
 ## Convenciones de código
+
+Los ejemplos usan `Listing`, el modelo que el MVP necesita (el alojamiento que
+publica un anfitrión). **Todavía no existe**: son la plantilla a seguir, no
+código del repo.
 
 ### Rutas
 ```js
@@ -142,9 +146,11 @@ export default model('Listing', listingSchema)
 ## Endpoints actuales
 ```
 GET  /api/health          → health check
+GET  /api/users           → lista de usuarios (auth requerida)
 POST /api/users/create    → registro
 POST /api/users/login     → login (devuelve JWT)
 GET  /api/users/current   → usuario actual (auth requerida)
+GET  /api/users/profile   → alias de /current (auth requerida)
 GET  /api/regions/suggest   → autocompletado por prefijo (Redis)
                               ?term= &country_code= [&level_type=1|2|3]
 GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
@@ -154,7 +160,9 @@ GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
 ## Autenticación
 - JWT en Authorization header: `Bearer <token>`
 - Token sin expiración (pendiente: añadir expiración + refresh)
-- Roles pendientes: `guest` | `host` | `admin`
+- Roles: el schema ya tiene `role: guest | host | admin` (`guest` por defecto),
+  pero nada lo usa. En el producto hay anfitrión y huésped, más la moderación;
+  cómo se reflejan en `role` está por decidir (`micasaestuya-docs/status.md`)
 - Middleware `auth` en `utils/middleware.js`
 
 ## Manejo de errores
@@ -166,10 +174,12 @@ GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
 ## Variables de entorno (.env)
 ```
 MONGODB_URI=
+MONGODB_TEST_URI= # solo para npm test (base separada)
 PORT=3001
 SECRET=           # JWT secret
 REDIS_URI=        # Redis connection
-NODE_ENV=         # development | test | production
+REDIS_TEST_URI=   # solo para npm test (db lógica 1)
+NODE_ENV=         # development | test | production (los scripts npm ya lo fijan)
 ```
 
 ## Tests
