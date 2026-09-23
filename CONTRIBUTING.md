@@ -15,10 +15,17 @@ Thank you for your interest in contributing! 🎉
 6. **Push** to your fork
 7. **Open a Pull Request** describing your changes
 
+## Before you start
+
+Read the project's source of truth first:
+[`micasaestuya-docs`](https://github.com/marlonbdez/micasaestuya-docs) —
+`product-vision.md`, then `status.md`. This repo's coding rules are in
+`CLAUDE.md` and `docs/`.
+
 ## Development Setup
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 22+
 - npm 8+
 - MongoDB (via Docker Compose in `micasaestuya-infra`)
 - Redis (via Docker Compose in `micasaestuya-infra`)
@@ -30,7 +37,7 @@ npm install
 
 # Start dev environment (from infra repo)
 cd ../micasaestuya-infra
-docker-compose up -d
+docker compose up -d
 
 # Return to api and start dev server
 cd ../micasaestuya-api
@@ -53,9 +60,9 @@ npm test
 Use clear, descriptive commit messages:
 ```
 feat: Add user authentication endpoint
-fix: Resolve property search pagination bug
+fix: Resolve region search pagination bug
 docs: Update API documentation
-test: Add tests for property filters
+test: Add tests for the regions endpoints
 refactor: Simplify MongoDB queries
 ```
 
