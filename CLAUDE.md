@@ -2,15 +2,23 @@
 
 Backend del portal de clasificados. Express + MongoDB + Redis.
 
-> **Vocabulario compartido con `web`, y es lo más fácil de romper:**
->
-> - **`region`** — un nodo del árbol administrativo: provincia, municipio,
->   localidad. Nunca lleva calle ni coordenadas.
-> - **`address`** — la región **más** la calle y el número. Vive en el anuncio.
-> - **`locale`** — país + idioma (`es-CU`, `en-DO`).
->
-> El porqué está en `web/docs/regions.md`. Antes de renombrar nada de esta zona,
-> léelo: estos nombres ya cambiaron dos veces y volver atrás cuesta.
+> **`CLAUDE.md` no se centraliza — se queda en este repo por razones
+> técnicas** (las herramientas de código lo leen automáticamente al trabajar
+> aquí). Pero **la fuente de verdad del proyecto es `micasaestuya-docs`**:
+> arquitectura, decisiones, visión de producto y cualquier cosa de negocio se
+> escriben allí, nunca en un `CLAUDE.md`. Este fichero es solo el manual de
+> estilo de código de este repo.
+
+| Documento                                | Cuándo abrirlo                                |
+| ------------------------------------------ | ------------------------------------------------ |
+| `../micasaestuya-docs/status.md`         | Estado del proyecto, siguiente paso y deuda    |
+| `../micasaestuya-docs/product-vision.md` | Qué es el proyecto y por qué                   |
+| `docs/gotchas.md`                        | Trampas del toolchain y del modelo de regiones |
+
+> **Vocabulario compartido con `web`** (`region`, `address`, `locale`) — la
+> definición completa y el porqué viven en
+> `../micasaestuya-docs/Domain-Vocabulary.md`. Antes de renombrar nada de esta
+> zona, léelo: estos nombres ya cambiaron dos veces y volver atrás cuesta.
 
 ## Stack
 - Node.js + Express (ESM — `"type": "module"`)
@@ -62,7 +70,7 @@ import data from '../data/regions_cu.json' with { type: 'json' } // ❌ CI rojo
 ```
 
 Se lee el JSON con `readFileSync` y `import.meta.url`. Detalle en
-`web/docs/tooling.md`.
+`docs/gotchas.md`.
 
 **El lint no se puede correr desde el host.** `node_modules` vive en el volumen
 de Docker, así que en el disco está vacío:
@@ -71,9 +79,10 @@ de Docker, así que en el disco está vacío:
 docker compose exec express npm run lint
 ```
 
-**En el CI usa `CI_REGISTRY_IMAGE`**, nunca una ruta de registro escrita a mano:
-el proyecto pasó de llamarse `backend` a `api` y las rutas fijas se quedaron
-apuntando a un sitio que ya no existe.
+**La imagen se publica en GitHub Container Registry**, en una ruta fija:
+`ghcr.io/marlonbdez/micasaestuya-api` (lo consume Render). El proyecto pasó de
+llamarse `backend` a `api`; si ves una ruta de registro distinta a esa, está
+desactualizada.
 
 ## Convenciones de código
 
