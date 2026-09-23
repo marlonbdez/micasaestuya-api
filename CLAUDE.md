@@ -1,6 +1,6 @@
 # micasaestuya · api
 
-Backend del portal de clasificados. Express + MongoDB + Redis.
+Backend de la plataforma de intercambio de alojamiento por colaboración. Express + MongoDB + Redis.
 
 > **`CLAUDE.md` no se centraliza — se queda en este repo por razones
 > técnicas** (las herramientas de código lo leen automáticamente al trabajar
@@ -88,55 +88,55 @@ desactualizada.
 
 ### Rutas
 ```js
-// routes/properties.js
+// routes/listings.js
 import { Router } from 'express'
-import { PropertyController } from '../controllers/property.js'
+import { ListingController } from '../controllers/listing.js'
 import { auth } from '../utils/middleware.js'
 
-const propertyRouter = Router()
-propertyRouter.get('/', PropertyController.getAll)
-propertyRouter.post('/', auth, PropertyController.create)
-export { propertyRouter }
+const listingRouter = Router()
+listingRouter.get('/', ListingController.getAll)
+listingRouter.post('/', auth, ListingController.create)
+export { listingRouter }
 ```
 
 ### Controllers
 ```js
-// controllers/property.js — solo lógica HTTP
-export const PropertyController = {
+// controllers/listing.js — solo lógica HTTP
+export const ListingController = {
   async getAll(req, res) {
-    const properties = await PropertyModel.getAll(req.query)
-    res.json(properties)
+    const listings = await ListingModel.getAll(req.query)
+    res.json(listings)
   }
 }
 ```
 
 ### Models
 ```js
-// models/property.js — lógica de negocio + queries
-import PropertySchema from '../schemas/property.js'
+// models/listing.js — lógica de negocio + queries
+import ListingSchema from '../schemas/listing.js'
 
-class PropertyModel {
+class ListingModel {
   static async getAll(filters = {}) { ... }
   static async getById(id) { ... }
   static async create(data) { ... }
   static async update(id, data) { ... }
 }
-export default PropertyModel
+export default ListingModel
 ```
 
 ### Schemas Mongoose
 ```js
-// schemas/property.js
+// schemas/listing.js
 import { Schema, model } from 'mongoose'
 import mongooseUniqueValidator from 'mongoose-unique-validator'
 
-const propertySchema = new Schema({
+const listingSchema = new Schema({
   title: { type: String, required: true },
   // ...
 }, { timestamps: true })
 
-propertySchema.plugin(mongooseUniqueValidator)
-export default model('Property', propertySchema)
+listingSchema.plugin(mongooseUniqueValidator)
+export default model('Listing', listingSchema)
 ```
 
 ## Endpoints actuales
