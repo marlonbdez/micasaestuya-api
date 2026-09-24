@@ -19,13 +19,13 @@ export const closeDB = async () => {
   await mongoose.connection.close()
 }
 
-export const createTestUser = async ({ email, firstName = 'Test', lastName = 'User', role = 'guest', passwordHash = 'hashed' } = {}) => {
-  const resolvedEmail = email || `${role}-${Date.now()}@test.com`
-  return User.create({ email: resolvedEmail, firstName, lastName, passwordHash, role })
+export const createTestUser = async ({ email, firstName = 'Test', lastName = 'User', passwordHash = 'hashed' } = {}) => {
+  const resolvedEmail = email || `user-${Date.now()}@test.com`
+  return User.create({ email: resolvedEmail, firstName, lastName, passwordHash })
 }
 
 export const getAuthToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.SECRET)
+  return jwt.sign({ id: user._id, email: user.email }, process.env.SECRET)
 }
 
 export const usersInDb = async () => {

@@ -35,8 +35,7 @@ class UserModel {
 
     const userForToken = {
       email,
-      id: user._id,
-      role: user.role
+      id: user._id
     }
 
     return jwt.sign(userForToken, process.env.SECRET)
@@ -55,8 +54,7 @@ class UserModel {
     const savedUser = await user.save()
     const userForToken = {
       email: user.email,
-      id: savedUser._id,
-      role: user.role
+      id: savedUser._id
     }
 
     return { token: jwt.sign(userForToken, process.env.SECRET) }
