@@ -39,7 +39,8 @@ utils/         →  config, logger, middleware, redisClient
 ## Modelos existentes
 | Modelo   | Schema         | Notas                              |
 |----------|----------------|------------------------------------|
-| User     | schemas/user   | JWT auth, bcrypt, campo `role` sin usar todavía |
+| User     | schemas/user   | JWT auth, bcrypt. Sin roles (ADR 007) |
+| Listing  | schemas/listing | Alojamiento de un anfitrión (`micasaestuya-docs/Listing.md`) |
 | Region   | Redis + JSON   | ver abajo |
 
 ## Las regiones: dos índices, una fuente
@@ -86,9 +87,10 @@ desactualizada.
 
 ## Convenciones de código
 
-Los ejemplos usan `Listing`, el modelo que el MVP necesita (el alojamiento que
-publica un anfitrión). **Todavía no existe**: son la plantilla a seguir, no
-código del repo.
+Los ejemplos usan `Listing` (el alojamiento que publica un anfitrión). Es un
+esquema de la convención, no una copia del código: el real está en
+`schemas/`, `models/`, `controllers/` y `routes/` con `listing` en el nombre, y
+de momento solo tiene `create`.
 
 ### Rutas
 ```js
@@ -155,14 +157,15 @@ GET  /api/regions/suggest   → autocompletado por prefijo (Redis)
                               ?term= &country_code= [&level_type=1|2|3]
 GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
                               ?country_code= [&level1= &level2= &level3=]
+POST /api/listings          → publicar un alojamiento (auth requerida)
 ```
 
 ## Autenticación
 - JWT en Authorization header: `Bearer <token>`
 - Token sin expiración (pendiente: añadir expiración + refresh)
-- Roles: el schema ya tiene `role: guest | host | admin` (`guest` por defecto),
-  pero nada lo usa. En el producto hay anfitrión y huésped, más la moderación;
-  cómo se reflejan en `role` está por decidir (`micasaestuya-docs/status.md`)
+- Sin roles (ADR 007 en `micasaestuya-docs`): anfitrión es quien tiene al menos
+  un `Listing`. Los documentos antiguos de `users` pueden conservar un campo
+  `role`: el schema ya no lo declara y se ignora
 - Middleware `auth` en `utils/middleware.js`
 
 ## Manejo de errores
