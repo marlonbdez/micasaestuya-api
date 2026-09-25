@@ -9,6 +9,10 @@ import { requestLogger, unknownEndpoint, errorHandler } from './utils/middleware
 
 const app = express()
 
+// En producción la API va detrás del proxy de Render: sin esto, el límite de
+// peticiones vería la IP del proxy y contaría a todos los usuarios juntos.
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1)
+
 // Middlewares
 app.use(cors())
 app.use(express.static('build'))
