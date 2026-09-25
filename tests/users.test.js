@@ -117,7 +117,7 @@ describe('users API', () => {
     })
 
     test('fails with 401 when the token is valid but the user no longer exists', async () => {
-      const token = getAuthToken({ _id: 'ghost-id', email: 'ghost@example.com', role: 'guest' })
+      const token = getAuthToken({ _id: 'ghost-id', email: 'ghost@example.com' })
 
       await api
         .get('/api/users/current')

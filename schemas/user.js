@@ -15,11 +15,6 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   passwordHash: String,
-  role: {
-    type: String,
-    enum: ['guest', 'host', 'admin'],
-    default: 'guest'
-  },
   notes: [
     {
       type: mongoose.Schema.Types.ObjectId,
