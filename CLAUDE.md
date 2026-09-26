@@ -81,7 +81,7 @@ docker compose exec express npm run lint
 ```
 
 **La imagen se publica en GitHub Container Registry**, en una ruta fija:
-`ghcr.io/marlonbdez/micasaestuya-api` (lo consume Render). El proyecto pasó de
+`ghcr.io/marlonbdez/micasaestuya-api` (como respaldo: Render no la usa, construye desde el repo de GitHub). El proyecto pasó de
 llamarse `backend` a `api`; si ves una ruta de registro distinta a esa, está
 desactualizada.
 
