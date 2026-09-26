@@ -1,15 +1,28 @@
 version: 2
 updates:
+  # Las versiones mayores se hacen a mano, como tarea propia (rompen peer
+  # dependencies y APIs). Aquí solo menores y parches, agrupados en una PR para
+  # que la CI los pruebe juntos.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
 
+  # Node se fija por ADR (ADR 004), no por Dependabot.
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
