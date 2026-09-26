@@ -2,8 +2,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 export const PORT = process.env.PORT
-export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://root:miclave1989@mongo:27017/micasaestuya-dev?authSource=admin'
-export const MONGODB_TEST_URI = process.env.MONGODB_TEST_URI || 'mongodb://root:miclave1989@mongo:27017/micasaestuya-test-dev?authSource=admin'
+export const MONGODB_URI = process.env.MONGODB_URI
+export const MONGODB_TEST_URI = process.env.MONGODB_TEST_URI
 export const REDIS_URI = process.env.REDIS_URI || 'redis://localhost:6379'
 export const REDIS_TEST_URI = process.env.REDIS_TEST_URI || 'redis://localhost:6379/1'
 export const SECRET = process.env.SECRET
