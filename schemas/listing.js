@@ -15,6 +15,7 @@ export const COLLABORATION_TASKS = [
 export const CAPACITY_MIN = 1
 export const CAPACITY_MAX = 20
 export const TITLE_MAX = 100
+export const MAX_PHOTOS = 7
 // "+", código de país y el número, sin espacios (web lo envía ya limpio).
 export const WHATSAPP_PATTERN = /^\+[1-9]\d{7,19}$/
 
@@ -51,9 +52,16 @@ const listingSchema = new mongoose.Schema({
     }
   },
   whatsapp: { type: String, required: true, match: WHATSAPP_PATTERN },
-  // URLs públicas. Vacío hasta que exista la subida de fotos: el campo está
-  // para que añadirla no obligue a migrar nada.
-  photos: { type: [String], default: [] },
+  // URLs públicas de las fotos en R2 (la miniatura se deduce: `${url}-thumb`).
+  // Las pone la api al confirmar la subida, nunca el cliente.
+  photos: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: (photos) => photos.length <= MAX_PHOTOS,
+      message: `At most ${MAX_PHOTOS} photos`
+    }
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
