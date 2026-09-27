@@ -16,10 +16,10 @@ const notFound = () => {
 }
 
 // Tipos que web puede producir (WebP, y JPEG si el navegador no codifica WebP).
-// Los pesos son un tope holgado sobre lo que sale de web (1280 px y miniatura
+// Los pesos son un tope holgado sobre lo que sale de web (1600 px y miniatura
 // de 400 px); si se ajusta el reescalado, se ajustan aquí.
 const PHOTO_TYPES = ['image/webp', 'image/jpeg']
-const MAX_PHOTO_BYTES = 600 * 1024
+const MAX_PHOTO_BYTES = 1024 * 1024
 const MAX_THUMB_BYTES = 100 * 1024
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 

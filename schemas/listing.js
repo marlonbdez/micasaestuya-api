@@ -15,7 +15,7 @@ export const COLLABORATION_TASKS = [
 export const CAPACITY_MIN = 1
 export const CAPACITY_MAX = 20
 export const TITLE_MAX = 100
-export const MAX_PHOTOS = 7
+export const MAX_PHOTOS = 10
 // "+", código de país y el número, sin espacios (web lo envía ya limpio).
 export const WHATSAPP_PATTERN = /^\+[1-9]\d{7,19}$/
 
