@@ -6,6 +6,24 @@ class ListingController {
 
     return res.status(201).json(listing)
   }
+
+  static async requestPhotoUploads (req, res) {
+    const uploads = await ListingModel.requestPhotoUploads(req.params.id, req.user.id, req.body.photos)
+
+    return res.json({ uploads })
+  }
+
+  static async confirmPhotos (req, res) {
+    const listing = await ListingModel.confirmPhotos(req.params.id, req.user.id, req.body.photoIds)
+
+    return res.json(listing)
+  }
+
+  static async removePhoto (req, res) {
+    await ListingModel.removePhoto(req.params.id, req.user.id, req.params.photoId)
+
+    return res.status(204).end()
+  }
 }
 
 export default ListingController
