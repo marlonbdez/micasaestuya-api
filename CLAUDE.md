@@ -158,7 +158,13 @@ GET  /api/regions/suggest   → autocompletado por prefijo (Redis)
 GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
                               ?country_code= [&level1= &level2= &level3=]
 POST /api/listings          → publicar un alojamiento (auth requerida)
+POST /api/listings/:id/photos          → URLs firmadas para subir fotos a R2 (dueño)
+POST /api/listings/:id/photos/confirm  → confirma en R2 y guarda las URLs (dueño)
+DELETE /api/listings/:id/photos/:id    → quita una foto y la borra de R2 (dueño)
 ```
+
+Detalle de las fotos (formatos, pesos, por qué no pasan por la `api`) en
+`../micasaestuya-docs/Listing.md` § Fotos y [ADR 009](../micasaestuya-docs/ADRs.md).
 
 ## Autenticación
 - JWT en Authorization header: `Bearer <token>`
@@ -183,6 +189,11 @@ SECRET=           # JWT secret
 REDIS_URI=        # Redis connection
 REDIS_TEST_URI=   # solo para npm test (db lógica 1)
 NODE_ENV=         # development | test | production (los scripts npm ya lo fijan)
+R2_ACCOUNT_ID=            # Cloudflare R2 (fotos de los alojamientos)
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=
+R2_PUBLIC_URL=            # dominio público del bucket (r2.dev en dev; propio en producción)
 ```
 
 ## Tests

@@ -94,12 +94,12 @@ describe('listing photos API', () => {
       await request('post', '/photos', {}).expect(400)
     })
 
-    test('rejects more than 7 photos', async () => {
-      await request('post', '/photos', { photos: Array(8).fill({ contentType: WEBP }) }).expect(400)
+    test('rejects more than 10 photos', async () => {
+      await request('post', '/photos', { photos: Array(11).fill({ contentType: WEBP }) }).expect(400)
     })
 
     test('counts the photos the listing already has', async () => {
-      const uploads = await requestUploads(5)
+      const uploads = await requestUploads(8)
       uploads.forEach((u) => upload(u))
       await confirm(uploads).expect(200)
 
@@ -157,7 +157,7 @@ describe('listing photos API', () => {
 
     test('rejects a photo that weighs too much', async () => {
       const uploads = await requestUploads(1)
-      upload(uploads[0], { size: 700 * 1024 })
+      upload(uploads[0], { size: 2 * 1024 * 1024 })
 
       await confirm(uploads).expect(400)
       assert.strictEqual((await Listing.findById(listing.id)).photos.length, 0)
@@ -175,8 +175,8 @@ describe('listing photos API', () => {
       await request('post', '/photos/confirm', { photoIds: [] }).expect(400)
     })
 
-    test('never goes over 7 photos', async () => {
-      const first = await requestUploads(5)
+    test('never goes over 10 photos', async () => {
+      const first = await requestUploads(8)
       first.forEach((u) => upload(u))
       await confirm(first).expect(200)
 
@@ -185,7 +185,7 @@ describe('listing photos API', () => {
       extra.forEach((u) => upload(u))
       await confirm(extra).expect(400)
 
-      assert.strictEqual((await Listing.findById(listing.id)).photos.length, 5)
+      assert.strictEqual((await Listing.findById(listing.id)).photos.length, 8)
     })
 
     test('a listing of someone else is a 404', async () => {
