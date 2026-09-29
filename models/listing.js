@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import mongoose from 'mongoose'
 import Listing, { MAX_PHOTOS } from '../schemas/listing.js'
 import { storage } from '../utils/r2.js'
 import RegionModel from './region.js'
@@ -67,7 +68,50 @@ const assertCompleteRegion = (region) => {
   if (children.length > 0) throw badRequest('Region must reach its last level')
 }
 
+const DEFAULT_LIMIT = 12
+const MAX_LIMIT = 50
+// Lo que pinta una tarjeta de Explorar: sin descripción ni WhatsApp.
+const CARD_FIELDS = 'title region tasks capacity photos'
+
+const positiveInt = (value, fallback, max = Number.MAX_SAFE_INTEGER) => {
+  if (value === undefined) return fallback
+  const number = Number(value)
+  if (!Number.isInteger(number) || number < 1 || number > max) {
+    throw badRequest('page and limit must be positive whole numbers')
+  }
+  return number
+}
+
 class ListingModel {
+  // Solo salen los alojamientos con al menos una foto confirmada: la subida
+  // ocurre después de crearlos y puede fallar, y Explorar no debe mostrar
+  // tarjetas sin imagen.
+  static async list ({ page, limit } = {}) {
+    const currentPage = positiveInt(page, 1)
+    const pageSize = positiveInt(limit, DEFAULT_LIMIT, MAX_LIMIT)
+    const filter = { 'photos.0': { $exists: true } }
+
+    const [items, total] = await Promise.all([
+      Listing.find(filter, CARD_FIELDS)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip((currentPage - 1) * pageSize)
+        .limit(pageSize),
+      Listing.countDocuments(filter)
+    ])
+
+    return { items, total }
+  }
+
+  // Un id mal formado y uno que no existe dan lo mismo: 404. El anfitrión
+  // sale solo con su nombre de pila.
+  static async findById (listingId) {
+    if (!mongoose.isValidObjectId(listingId)) throw notFound()
+
+    const listing = await Listing.findById(listingId).populate('owner', 'firstName')
+    if (!listing) throw notFound()
+    return listing
+  }
+
   // Solo se toman los campos que decide quien publica: `owner` sale del token
   // y `photos` nunca viene del cliente (se rellena al confirmar la subida).
   static async create ({ title, region, description, tasks, capacity, whatsapp }, ownerId) {

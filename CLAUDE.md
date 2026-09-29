@@ -157,6 +157,9 @@ GET  /api/regions/suggest   → autocompletado por prefijo (Redis)
                               ?term= &country_code= [&level_type=1|2|3]
 GET  /api/regions/children  → hijos de un nodo del árbol (memoria)
                               ?country_code= [&level1= &level2= &level3=]
+GET  /api/listings          → Explorar: alojamientos con foto, los nuevos primero (público)
+                              [?page= &limit=]  →  { items, total }
+GET  /api/listings/:id      → un alojamiento, con el nombre de pila del anfitrión (público)
 POST /api/listings          → publicar un alojamiento (auth requerida)
 POST /api/listings/:id/photos          → URLs firmadas para subir fotos a R2 (dueño)
 POST /api/listings/:id/photos/confirm  → confirma en R2 y guarda las URLs (dueño)
