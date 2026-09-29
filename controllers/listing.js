@@ -1,6 +1,18 @@
 import ListingModel from '../models/listing.js'
 
 class ListingController {
+  static async list (req, res) {
+    const listings = await ListingModel.list(req.query)
+
+    return res.json(listings)
+  }
+
+  static async findById (req, res) {
+    const listing = await ListingModel.findById(req.params.id)
+
+    return res.json(listing)
+  }
+
   static async create (req, res) {
     const listing = await ListingModel.create(req.body, req.user.id)
 

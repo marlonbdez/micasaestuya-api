@@ -116,4 +116,84 @@ describe('listings API', () => {
       await post({ ...validListing(), region }).expect(400)
     })
   })
+
+  describe('GET /api/listings', () => {
+    const create = (fields = {}) =>
+      Listing.create({
+        ...validListing(),
+        owner: user._id,
+        photos: ['https://photos.test/a'],
+        ...fields
+      })
+
+    test('is public and lists only the card fields', async () => {
+      await create()
+
+      const response = await api.get('/api/listings').expect(200)
+
+      assert.strictEqual(response.body.total, 1)
+      const [item] = response.body.items
+      assert.deepStrictEqual(
+        Object.keys(item).sort(),
+        ['capacity', 'id', 'photos', 'region', 'tasks', 'title']
+      )
+    })
+
+    test('skips listings without photos', async () => {
+      await create({ title: 'Con foto' })
+      await create({ title: 'Sin foto', photos: [] })
+
+      const response = await api.get('/api/listings').expect(200)
+
+      assert.deepStrictEqual(response.body.items.map((item) => item.title), ['Con foto'])
+      assert.strictEqual(response.body.total, 1)
+    })
+
+    test('returns the newest first and paginates', async () => {
+      await create({ title: 'Primera' })
+      await create({ title: 'Segunda' })
+      await create({ title: 'Tercera' })
+
+      const first = await api.get('/api/listings?limit=2').expect(200)
+      const second = await api.get('/api/listings?limit=2&page=2').expect(200)
+
+      assert.deepStrictEqual(first.body.items.map((item) => item.title), ['Tercera', 'Segunda'])
+      assert.deepStrictEqual(second.body.items.map((item) => item.title), ['Primera'])
+      assert.strictEqual(first.body.total, 3)
+    })
+
+    test('returns an empty page past the end', async () => {
+      await create()
+
+      const response = await api.get('/api/listings?page=5').expect(200)
+
+      assert.deepStrictEqual(response.body, { items: [], total: 1 })
+    })
+
+    test('fails with 400 for a bad page or limit', async () => {
+      await api.get('/api/listings?page=0').expect(400)
+      await api.get('/api/listings?page=abc').expect(400)
+      await api.get('/api/listings?limit=51').expect(400)
+    })
+  })
+
+  describe('GET /api/listings/:id', () => {
+    test('is public and returns the listing with the host first name only', async () => {
+      const listing = await Listing.create({ ...validListing(), owner: user._id })
+
+      const response = await api.get(`/api/listings/${listing.id}`).expect(200)
+
+      assert.strictEqual(response.body.title, listing.title)
+      assert.strictEqual(response.body.whatsapp, listing.whatsapp)
+      assert.deepStrictEqual(response.body.owner, { id: user.id, firstName: 'Test' })
+    })
+
+    test('fails with 404 when the listing does not exist', async () => {
+      await api.get('/api/listings/64b000000000000000000000').expect(404)
+    })
+
+    test('fails with 404 when the id is malformed', async () => {
+      await api.get('/api/listings/nope').expect(404)
+    })
+  })
 })
