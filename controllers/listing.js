@@ -7,6 +7,12 @@ class ListingController {
     return res.json(listings)
   }
 
+  static async mine (req, res) {
+    const listings = await ListingModel.findByOwner(req.user.id)
+
+    return res.json(listings)
+  }
+
   static async findById (req, res) {
     const listing = await ListingModel.findById(req.params.id)
 

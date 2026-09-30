@@ -6,6 +6,7 @@ import { writeLimiter } from '../utils/rateLimit.js'
 export const listingsRouter = Router()
 
 listingsRouter.get('/', ListingController.list)
+listingsRouter.get('/mine', auth, ListingController.mine)
 listingsRouter.get('/:id', ListingController.findById)
 listingsRouter.post('/', writeLimiter, auth, ListingController.create)
 listingsRouter.post('/:id/photos', writeLimiter, auth, ListingController.requestPhotoUploads)
