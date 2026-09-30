@@ -25,6 +25,12 @@ class ListingController {
     return res.status(201).json(listing)
   }
 
+  static async remove (req, res) {
+    await ListingModel.remove(req.params.id, req.user.id)
+
+    return res.status(204).end()
+  }
+
   static async requestPhotoUploads (req, res) {
     const uploads = await ListingModel.requestPhotoUploads(req.params.id, req.user.id, req.body.photos)
 

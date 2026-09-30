@@ -143,6 +143,17 @@ class ListingModel {
     return listing
   }
 
+  // El alojamiento se borra primero: si R2 falla después, quedan ficheros
+  // huérfanos, pero nunca un alojamiento con fotos rotas.
+  static async remove (listingId, ownerId) {
+    if (!mongoose.isValidObjectId(listingId)) throw notFound()
+
+    const listing = await Listing.findOneAndDelete({ _id: listingId, owner: ownerId })
+    if (!listing) throw notFound()
+
+    await Promise.all(listing.photos.map((url) => removeObjects(listingId, url.split('/').pop())))
+  }
+
   // Paso 1: URLs firmadas para que el navegador suba las fotos a R2.
   static async requestPhotoUploads (listingId, ownerId, photos) {
     const listing = await ListingModel.findOwned(listingId, ownerId)
