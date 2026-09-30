@@ -3,6 +3,7 @@ import { after, afterEach, before, beforeEach, describe, test } from 'node:test'
 import supertest from 'supertest'
 import app from '../app.js'
 import Listing from '../schemas/listing.js'
+import { storage } from '../utils/r2.js'
 import { clearDB, closeDB, connectDB, createTestUser, getAuthToken } from './test_helper.js'
 
 const api = supertest(app)
@@ -230,6 +231,63 @@ describe('listings API', () => {
 
     test('fails with 404 when the id is malformed', async () => {
       await api.get('/api/listings/nope').expect(404)
+    })
+  })
+
+  describe('DELETE /api/listings/:id', () => {
+    const original = { ...storage }
+    let removed
+
+    beforeEach(() => {
+      removed = []
+      storage.remove = async (key) => { removed.push(key) }
+    })
+
+    afterEach(() => {
+      Object.assign(storage, original)
+    })
+
+    const remove = (id, authToken = token) => {
+      const request = api.delete(`/api/listings/${id}`)
+      return authToken ? request.set('Authorization', `Bearer ${authToken}`) : request
+    }
+
+    test('deletes the listing and the files of its photos from R2', async () => {
+      const listing = await Listing.create({
+        ...validListing(),
+        owner: user._id,
+        photos: ['https://photos.test/listings/x/aaa', 'https://photos.test/listings/x/bbb']
+      })
+
+      await remove(listing.id).expect(204)
+
+      assert.strictEqual(await Listing.findById(listing.id), null)
+      assert.deepStrictEqual(removed.sort(), [
+        `listings/${listing.id}/aaa`,
+        `listings/${listing.id}/aaa-thumb`,
+        `listings/${listing.id}/bbb`,
+        `listings/${listing.id}/bbb-thumb`
+      ])
+    })
+
+    test('requires a token', async () => {
+      const listing = await Listing.create({ ...validListing(), owner: user._id })
+
+      await remove(listing.id, null).expect(401)
+      assert.ok(await Listing.findById(listing.id))
+    })
+
+    test('a listing of someone else is a 404 and stays', async () => {
+      const other = await createTestUser({ email: 'other@example.com' })
+      const listing = await Listing.create({ ...validListing(), owner: other._id, photos: ['https://photos.test/listings/x/aaa'] })
+
+      await remove(listing.id).expect(404)
+      assert.ok(await Listing.findById(listing.id))
+      assert.strictEqual(removed.length, 0)
+    })
+
+    test('a malformed id is a 404', async () => {
+      await remove('nope').expect(404)
     })
   })
 })

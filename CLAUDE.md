@@ -162,6 +162,7 @@ GET  /api/listings          → Explorar: alojamientos con foto, los nuevos prim
 GET  /api/listings/:id      → un alojamiento, con el nombre de pila del anfitrión (público)
 GET  /api/listings/mine     → mis alojamientos, con o sin fotos, los nuevos primero (auth requerida)
 POST /api/listings          → publicar un alojamiento (auth requerida)
+DELETE /api/listings/:id              → borra el alojamiento y sus fotos de R2 (dueño)
 POST /api/listings/:id/photos          → URLs firmadas para subir fotos a R2 (dueño)
 POST /api/listings/:id/photos/confirm  → confirma en R2 y guarda las URLs (dueño)
 DELETE /api/listings/:id/photos/:id    → quita una foto y la borra de R2 (dueño)
