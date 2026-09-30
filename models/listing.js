@@ -102,6 +102,12 @@ class ListingModel {
     return { items, total }
   }
 
+  // A diferencia de `list`, incluye los que aún no tienen fotos: quien los
+  // publicó tiene que poder verlos y terminarlos.
+  static async findByOwner (ownerId) {
+    return Listing.find({ owner: ownerId }, CARD_FIELDS).sort({ createdAt: -1, _id: -1 })
+  }
+
   // Un id mal formado y uno que no existe dan lo mismo: 404. El anfitrión
   // sale solo con su nombre de pila.
   static async findById (listingId) {

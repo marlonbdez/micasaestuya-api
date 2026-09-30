@@ -23,3 +23,7 @@ export const authLimiter = limiter(20)
 
 // Escrituras con sesión (publicar un alojamiento).
 export const writeLimiter = limiter(30)
+
+// Lecturas de alojamientos: más holgado, porque Explorar pagina y el detalle
+// se abre a menudo, pero acotado para que no se pueda martillear la base.
+export const readLimiter = limiter(300)

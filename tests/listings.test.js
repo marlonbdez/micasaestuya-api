@@ -177,6 +177,42 @@ describe('listings API', () => {
     })
   })
 
+  describe('GET /api/listings/mine', () => {
+    const create = (fields = {}) =>
+      Listing.create({ ...validListing(), owner: user._id, ...fields })
+
+    test('requires a token', async () => {
+      await api.get('/api/listings/mine').expect(401)
+    })
+
+    test('lists only my listings, newest first, including those without photos', async () => {
+      const other = await createTestUser({ email: 'other@example.com' })
+      await create({ title: 'Primera', photos: ['https://photos.test/a'] })
+      await create({ title: 'Segunda', photos: [] })
+      await create({ title: 'Ajena', owner: other._id })
+
+      const response = await api
+        .get('/api/listings/mine')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+
+      assert.deepStrictEqual(response.body.map((item) => item.title), ['Segunda', 'Primera'])
+      assert.deepStrictEqual(
+        Object.keys(response.body[0]).sort(),
+        ['capacity', 'id', 'photos', 'region', 'tasks', 'title']
+      )
+    })
+
+    test('returns an empty list when I have none', async () => {
+      const response = await api
+        .get('/api/listings/mine')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+
+      assert.deepStrictEqual(response.body, [])
+    })
+  })
+
   describe('GET /api/listings/:id', () => {
     test('is public and returns the listing with the host first name only', async () => {
       const listing = await Listing.create({ ...validListing(), owner: user._id })
