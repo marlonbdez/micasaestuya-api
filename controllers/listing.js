@@ -25,6 +25,12 @@ class ListingController {
     return res.status(201).json(listing)
   }
 
+  static async update (req, res) {
+    const listing = await ListingModel.update(req.params.id, req.user.id, req.body)
+
+    return res.json(listing)
+  }
+
   static async remove (req, res) {
     await ListingModel.remove(req.params.id, req.user.id)
 

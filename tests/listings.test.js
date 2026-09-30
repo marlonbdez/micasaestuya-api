@@ -234,6 +234,84 @@ describe('listings API', () => {
     })
   })
 
+  describe('PATCH /api/listings/:id', () => {
+    const patch = (id, body, authToken = token) => {
+      const request = api.patch(`/api/listings/${id}`).send(body)
+      return authToken ? request.set('Authorization', `Bearer ${authToken}`) : request
+    }
+
+    const create = (owner = user._id, extra = {}) => Listing.create({ ...validListing(), owner, ...extra })
+
+    test('changes only the fields sent', async () => {
+      const listing = await create()
+
+      const response = await patch(listing.id, { title: 'Casa nueva', capacity: 4 }).expect(200)
+
+      assert.strictEqual(response.body.title, 'Casa nueva')
+      assert.strictEqual(response.body.capacity, 4)
+      assert.strictEqual(response.body.description, validListing().description)
+      assert.strictEqual((await Listing.findById(listing.id)).title, 'Casa nueva')
+    })
+
+    test('changes the region, tasks and WhatsApp', async () => {
+      const listing = await create()
+      const region = { country_code: 'CU', level1: 'Matanzas', level2: 'Cárdenas', level3: 'Varadero', level_type: 3 }
+
+      const response = await patch(listing.id, { region, tasks: ['CLEANING'], whatsapp: '+5359999999' }).expect(200)
+
+      assert.deepStrictEqual(response.body.tasks, ['CLEANING'])
+      assert.strictEqual(response.body.whatsapp, '+5359999999')
+    })
+
+    test('keeps the photos, the owner and ignores them in the body', async () => {
+      const listing = await create(user._id, { photos: ['https://photos.test/listings/x/aaa'] })
+
+      const response = await patch(listing.id, {
+        title: 'Otro',
+        photos: [],
+        owner: '64b000000000000000000000'
+      }).expect(200)
+
+      assert.deepStrictEqual(response.body.photos, ['https://photos.test/listings/x/aaa'])
+      assert.strictEqual(response.body.owner, user._id.toString())
+    })
+
+    test('requires a token', async () => {
+      const listing = await create()
+
+      await patch(listing.id, { title: 'Otro' }, null).expect(401)
+    })
+
+    test('a listing of someone else is a 404 and stays as it was', async () => {
+      const other = await createTestUser({ email: 'other@example.com' })
+      const listing = await create(other._id)
+
+      await patch(listing.id, { title: 'Otro' }).expect(404)
+      assert.strictEqual((await Listing.findById(listing.id)).title, validListing().title)
+    })
+
+    test('a malformed id is a 404', async () => {
+      await patch('nope', { title: 'Otro' }).expect(404)
+    })
+
+    test('fails with 400 when a value is not valid', async () => {
+      const listing = await create()
+
+      await patch(listing.id, { title: '' }).expect(400)
+      await patch(listing.id, { tasks: [] }).expect(400)
+      await patch(listing.id, { capacity: 21 }).expect(400)
+      await patch(listing.id, { whatsapp: '51234567' }).expect(400)
+      assert.strictEqual((await Listing.findById(listing.id)).capacity, 2)
+    })
+
+    test('fails with 400 when the region stops before its last level', async () => {
+      const listing = await create()
+      const region = { country_code: 'CU', level1: 'Matanzas', level2: 'Cárdenas', level_type: 2 }
+
+      await patch(listing.id, { region }).expect(400)
+    })
+  })
+
   describe('DELETE /api/listings/:id', () => {
     const original = { ...storage }
     let removed

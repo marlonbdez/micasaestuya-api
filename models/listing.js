@@ -68,6 +68,8 @@ const assertCompleteRegion = (region) => {
   if (children.length > 0) throw badRequest('Region must reach its last level')
 }
 
+const EDITABLE_FIELDS = ['title', 'region', 'description', 'tasks', 'capacity', 'whatsapp']
+
 const DEFAULT_LIMIT = 12
 const MAX_LIMIT = 50
 // Lo que pinta una tarjeta de Explorar: sin descripción ni WhatsApp.
@@ -132,6 +134,21 @@ class ListingModel {
       whatsapp,
       owner: ownerId
     })
+
+    return listing.save()
+  }
+
+  // Solo cambian los campos que llegan; las fotos tienen sus propias rutas.
+  // Pasa por `save()` para que se vuelvan a aplicar todas las validaciones.
+  static async update (listingId, ownerId, changes) {
+    if (!mongoose.isValidObjectId(listingId)) throw notFound()
+
+    const listing = await ListingModel.findOwned(listingId, ownerId)
+    if (changes.region !== undefined) assertCompleteRegion(changes.region)
+
+    for (const field of EDITABLE_FIELDS) {
+      if (changes[field] !== undefined) listing.set(field, changes[field])
+    }
 
     return listing.save()
   }
