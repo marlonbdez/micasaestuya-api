@@ -14,13 +14,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  passwordHash: String,
-  notes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Note'
-    }
-  ]
+  passwordHash: String
 })
 
 userSchema.plugin(uniqueValidator)
