@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { storage } from '../utils/r2.js'
 
 // Las tareas que un anfitrión puede pedir. Mismos valores que el enum
 // CollaborationTask de web (core/types/listing.ts).
@@ -52,8 +53,8 @@ const listingSchema = new mongoose.Schema({
     }
   },
   whatsapp: { type: String, required: true, match: WHATSAPP_PATTERN },
-  // URLs públicas de las fotos en R2 (la miniatura se deduce: `${url}-thumb`).
-  // Las pone la api al confirmar la subida, nunca el cliente.
+  // Ids de las fotos en R2 (`listings/<id>/<photoId>`); la URL se compone al
+  // responder. Las pone la api al confirmar la subida, nunca el cliente.
   photos: {
     type: [String],
     default: [],
@@ -72,6 +73,8 @@ const listingSchema = new mongoose.Schema({
 listingSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
+    returnedObject.photos = returnedObject.photos?.map((photoId) =>
+      storage.publicUrl(`listings/${returnedObject.id}/${photoId}`))
     delete returnedObject._id
     delete returnedObject.__v
   }

@@ -118,7 +118,7 @@ describe('listing photos API', () => {
   })
 
   describe('POST /api/listings/:id/photos/confirm', () => {
-    test('saves the public url of each uploaded photo', async () => {
+    test('saves the id of each uploaded photo and answers with its public url', async () => {
       const uploads = await requestUploads(2)
       uploads.forEach((u) => upload(u))
 
@@ -126,7 +126,7 @@ describe('listing photos API', () => {
 
       assert.deepStrictEqual(response.body.photos, uploads.map((u) => `https://photos.test/listings/${listing.id}/${u.photoId}`))
       const saved = await Listing.findById(listing.id)
-      assert.strictEqual(saved.photos.length, 2)
+      assert.deepStrictEqual([...saved.photos], uploads.map((u) => u.photoId))
     })
 
     test('confirming again does not duplicate photos', async () => {
@@ -195,7 +195,7 @@ describe('listing photos API', () => {
   })
 
   describe('DELETE /api/listings/:id/photos/:photoId', () => {
-    test('removes the url and deletes both files from R2', async () => {
+    test('removes the id and deletes both files from R2', async () => {
       const uploads = await requestUploads(2)
       uploads.forEach((u) => upload(u))
       await confirm(uploads).expect(200)
@@ -203,7 +203,7 @@ describe('listing photos API', () => {
       await request('delete', `/photos/${uploads[0].photoId}`).expect(204)
 
       const saved = await Listing.findById(listing.id)
-      assert.deepStrictEqual(saved.photos, [`https://photos.test/listings/${listing.id}/${uploads[1].photoId}`])
+      assert.deepStrictEqual([...saved.photos], [uploads[1].photoId])
       assert.deepStrictEqual(removed.sort(), [
         `listings/${listing.id}/${uploads[0].photoId}`,
         `listings/${listing.id}/${uploads[0].photoId}-thumb`

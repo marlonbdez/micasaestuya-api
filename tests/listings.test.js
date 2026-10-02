@@ -8,6 +8,8 @@ import { clearDB, closeDB, connectDB, createTestUser, getAuthToken } from './tes
 
 const api = supertest(app)
 
+storage.publicUrl = (key) => `https://photos.test/${key}`
+
 // Varadero es una hoja del árbol: Matanzas → Cárdenas → Varadero.
 const validListing = () => ({
   title: 'Casa con jardín en Varadero',
@@ -123,7 +125,7 @@ describe('listings API', () => {
       Listing.create({
         ...validListing(),
         owner: user._id,
-        photos: ['https://photos.test/a'],
+        photos: ['aaa'],
         ...fields
       })
 
@@ -188,7 +190,7 @@ describe('listings API', () => {
 
     test('lists only my listings, newest first, including those without photos', async () => {
       const other = await createTestUser({ email: 'other@example.com' })
-      await create({ title: 'Primera', photos: ['https://photos.test/a'] })
+      await create({ title: 'Primera', photos: ['aaa'] })
       await create({ title: 'Segunda', photos: [] })
       await create({ title: 'Ajena', owner: other._id })
 
@@ -264,7 +266,7 @@ describe('listings API', () => {
     })
 
     test('keeps the photos, the owner and ignores them in the body', async () => {
-      const listing = await create(user._id, { photos: ['https://photos.test/listings/x/aaa'] })
+      const listing = await create(user._id, { photos: ['aaa'] })
 
       const response = await patch(listing.id, {
         title: 'Otro',
@@ -272,7 +274,7 @@ describe('listings API', () => {
         owner: '64b000000000000000000000'
       }).expect(200)
 
-      assert.deepStrictEqual(response.body.photos, ['https://photos.test/listings/x/aaa'])
+      assert.deepStrictEqual(response.body.photos, [`https://photos.test/listings/${listing.id}/aaa`])
       assert.strictEqual(response.body.owner, user._id.toString())
     })
 
@@ -334,7 +336,7 @@ describe('listings API', () => {
       const listing = await Listing.create({
         ...validListing(),
         owner: user._id,
-        photos: ['https://photos.test/listings/x/aaa', 'https://photos.test/listings/x/bbb']
+        photos: ['aaa', 'bbb']
       })
 
       await remove(listing.id).expect(204)
@@ -357,7 +359,7 @@ describe('listings API', () => {
 
     test('a listing of someone else is a 404 and stays', async () => {
       const other = await createTestUser({ email: 'other@example.com' })
-      const listing = await Listing.create({ ...validListing(), owner: other._id, photos: ['https://photos.test/listings/x/aaa'] })
+      const listing = await Listing.create({ ...validListing(), owner: other._id, photos: ['aaa'] })
 
       await remove(listing.id).expect(404)
       assert.ok(await Listing.findById(listing.id))
