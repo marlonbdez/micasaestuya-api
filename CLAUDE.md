@@ -165,7 +165,7 @@ POST /api/listings          → publicar un alojamiento (auth requerida)
 PATCH /api/listings/:id               → edita título, región, descripción, tareas, capacidad y WhatsApp (dueño)
 DELETE /api/listings/:id              → borra el alojamiento y sus fotos de R2 (dueño)
 POST /api/listings/:id/photos          → URLs firmadas para subir fotos a R2 (dueño)
-POST /api/listings/:id/photos/confirm  → confirma en R2 y guarda las URLs (dueño)
+POST /api/listings/:id/photos/confirm  → confirma en R2 y guarda los ids (dueño)
 DELETE /api/listings/:id/photos/:id    → quita una foto y la borra de R2 (dueño)
 ```
 

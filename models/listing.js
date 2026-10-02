@@ -28,7 +28,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 // cliente no elige nunca dónde se guarda nada.
 const photoKey = (listingId, photoId) => `listings/${listingId}/${photoId}`
 const thumbKey = (listingId, photoId) => `${photoKey(listingId, photoId)}-thumb`
-const photoUrl = (listingId, photoId) => storage.publicUrl(photoKey(listingId, photoId))
 
 const assertPhotoIds = (photoIds) => {
   if (!Array.isArray(photoIds) || photoIds.length === 0 || !photoIds.every((id) => UUID.test(id))) {
@@ -168,7 +167,7 @@ class ListingModel {
     const listing = await Listing.findOneAndDelete({ _id: listingId, owner: ownerId })
     if (!listing) throw notFound()
 
-    await Promise.all(listing.photos.map((url) => removeObjects(listingId, url.split('/').pop())))
+    await Promise.all(listing.photos.map((photoId) => removeObjects(listingId, photoId)))
   }
 
   // Paso 1: URLs firmadas para que el navegador suba las fotos a R2.
@@ -204,7 +203,7 @@ class ListingModel {
     const listing = await ListingModel.findOwned(listingId, ownerId)
 
     const pending = [...new Set(photoIds)]
-      .filter((photoId) => !listing.photos.includes(photoUrl(listingId, photoId)))
+      .filter((photoId) => !listing.photos.includes(photoId))
     if (pending.length === 0) return listing
     if (listing.photos.length + pending.length > MAX_PHOTOS) {
       throw badRequest(`A listing can have at most ${MAX_PHOTOS} photos`)
@@ -228,7 +227,7 @@ class ListingModel {
     // caben todas, aunque dos confirmaciones lleguen a la vez.
     const updated = await Listing.findOneAndUpdate(
       { _id: listingId, owner: ownerId, [`photos.${MAX_PHOTOS - pending.length}`]: { $exists: false } },
-      { $push: { photos: { $each: pending.map((photoId) => photoUrl(listingId, photoId)) } } },
+      { $push: { photos: { $each: pending } } },
       { new: true }
     )
     if (!updated) throw badRequest(`A listing can have at most ${MAX_PHOTOS} photos`)
@@ -238,10 +237,9 @@ class ListingModel {
   static async removePhoto (listingId, ownerId, photoId) {
     if (!UUID.test(photoId)) throw notFound()
 
-    const url = photoUrl(listingId, photoId)
     const updated = await Listing.findOneAndUpdate(
-      { _id: listingId, owner: ownerId, photos: url },
-      { $pull: { photos: url } },
+      { _id: listingId, owner: ownerId, photos: photoId },
+      { $pull: { photos: photoId } },
       { new: true }
     )
     if (!updated) throw notFound()
